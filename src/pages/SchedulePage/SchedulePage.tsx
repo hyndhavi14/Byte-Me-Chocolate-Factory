@@ -1,3 +1,8 @@
+import PageHeader from '../../components/PageHeader/PageHeader'
+import { useFactory } from '../../context/useFactory'
+
 export default function SchedulePage() {
-  return <h1>Production Schedule</h1>
+  const { factory } = useFactory()
+
+  return <PageHeader eyebrow={`${factory.name} · Sample data`} title="Production Schedule" />
 }

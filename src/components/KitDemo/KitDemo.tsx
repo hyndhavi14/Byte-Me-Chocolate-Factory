@@ -9,6 +9,7 @@ import Field from '../Field/Field'
 import Legend from '../Legend/Legend'
 import PageHeader from '../PageHeader/PageHeader'
 import StatTile from '../StatTile/StatTile'
+import { useFactory } from '../../context/useFactory'
 
 const PLAY_ICON = (
   <svg
@@ -31,6 +32,7 @@ const PLAY_ICON = (
 
 export default function KitDemo() {
   const [selected, setSelected] = useState('second')
+  const { factory } = useFactory()
 
   const toggleOptions = [
     { value: 'first', label: 'First' },
@@ -40,7 +42,7 @@ export default function KitDemo() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <PageHeader eyebrow="Demo · Colours & type board" title="Shared components" />
+      <PageHeader eyebrow={`${factory.name} · Sample data`} title="Shared components" />
 
       <section style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, margin: 0, fontSize: 22 }}>Button</h2>
@@ -142,7 +144,7 @@ export default function KitDemo() {
       <section style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 700, margin: 0, fontSize: 22 }}>PageHeader</h2>
         <PageHeader
-          eyebrow="Factory · Sample data"
+          eyebrow={`${factory.name} · Sample data`}
           title="Factory dashboard"
           actions={[
             <Button key="secondary" variant="secondary">Export report</Button>,

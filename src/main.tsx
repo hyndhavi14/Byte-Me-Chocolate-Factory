@@ -12,6 +12,7 @@ import ComparePage from './pages/ComparePage/ComparePage.tsx'
 import BuilderPage from './pages/BuilderPage/BuilderPage.tsx'
 import FactoryViewPage from './pages/FactoryViewPage/FactoryViewPage.tsx'
 import KitDemo from './components/KitDemo/KitDemo.tsx'
+import { FactoryProvider } from './context/FactoryContext.tsx'
 
 const router = createBrowserRouter([
   {
@@ -32,6 +33,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <FactoryProvider>
+      <RouterProvider router={router} />
+    </FactoryProvider>
   </StrictMode>,
 )

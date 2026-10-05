@@ -1,3 +1,8 @@
+import PageHeader from '../../components/PageHeader/PageHeader'
+import { useFactory } from '../../context/useFactory'
+
 export default function EnergyPage() {
-  return <h1>Energy Analysis</h1>
+  const { factory } = useFactory()
+
+  return <PageHeader eyebrow={`${factory.name} · Sample data`} title="Energy Analysis" />
 }

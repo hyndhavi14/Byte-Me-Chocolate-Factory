@@ -1,3 +1,8 @@
+import PageHeader from '../../components/PageHeader/PageHeader'
+import { useFactory } from '../../context/useFactory'
+
 export default function ComparePage() {
-  return <h1>Baseline vs Optimized</h1>
+  const { factory } = useFactory()
+
+  return <PageHeader eyebrow={`${factory.name} · Sample data`} title="Baseline vs Optimized" />
 }

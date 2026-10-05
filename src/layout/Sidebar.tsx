@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import Logo from '../components/Logo/Logo'
+import { useFactory } from '../context/useFactory'
 import styles from './Sidebar.module.css'
 
 const NAV_ITEMS = [
@@ -12,14 +13,9 @@ const NAV_ITEMS = [
   { to: '/factory-view', label: 'Factory View (2D / 3D)', number: 7 },
 ]
 
-const FACTORY_OPTIONS = [
-  'Chocolate Factory',
-  'Cosmetics Plant',
-  'Textile Mill',
-  'Bottling Plant',
-]
-
 export default function Sidebar() {
+  const { factory, factories, setFactoryId } = useFactory()
+
   return (
     <nav aria-label="Main" className={styles.sidebar}>
       <div className={styles.logoRow}>
@@ -30,10 +26,15 @@ export default function Sidebar() {
         <label htmlFor="factory-select" className={styles.eyebrow}>
           Factory
         </label>
-        <select id="factory-select" className={styles.select} defaultValue="Chocolate Factory">
-          {FACTORY_OPTIONS.map((name) => (
-            <option key={name} value={name}>
-              {name}
+        <select
+          id="factory-select"
+          className={styles.select}
+          value={factory.id}
+          onChange={(event) => setFactoryId(event.currentTarget.value)}
+        >
+          {factories.map((item) => (
+            <option key={item.id} value={item.id}>
+              {item.name}
             </option>
           ))}
         </select>
