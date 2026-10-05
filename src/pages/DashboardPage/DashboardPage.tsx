@@ -1,5 +1,6 @@
 import Button from '../../components/Button/Button'
 import Card from '../../components/Card/Card'
+import GanttRow from '../../components/GanttRow/GanttRow'
 import KpiCard from '../../components/KpiCard/KpiCard'
 import Legend from '../../components/Legend/Legend'
 import PageHeader from '../../components/PageHeader/PageHeader'
@@ -38,15 +39,6 @@ const CUBE_ICON = (
     <path d="m6 12 14 8 14-8M20 20v16M13 8l14 8" stroke="currentColor" strokeWidth="2" />
   </svg>
 )
-
-const BLOCK_CLASSES: Record<ScheduleBlock['colorKey'], string> = {
-  roast: styles.roast,
-  grind: styles.grind,
-  conche: styles.conche,
-  temper: styles.temper,
-  mould: styles.mould,
-  pack: styles.pack,
-}
 
 function EnergyChart({
   energyByHour,
@@ -157,24 +149,15 @@ function SchedulePreview({
       <div className={styles.ganttInner}>
         {schedule.map((block) => {
           const machine = machineById.get(block.machineId)
-          const left = (block.start / 24) * 100
-          const width = ((block.end - block.start) / 24) * 100
 
           return (
-            <div className={styles.ganttRow} key={block.id}>
-              <span className={styles.ganttMachine}>
-                {machine?.name ?? block.processName}
-              </span>
-              <div className={styles.ganttTrack}>
-                <span
-                  className={`${styles.ganttBlock} ${BLOCK_CLASSES[block.colorKey]}`}
-                  style={{ left: `${left}%`, width: `${width}%` }}
-                  title={`${block.processName} · ${block.start}:00–${block.end}:00`}
-                >
-                  {block.processName}
-                </span>
-              </div>
-            </div>
+            <GanttRow
+              key={block.id}
+              label={machine?.name ?? block.processName}
+              blocks={[block]}
+              height={30}
+              compact
+            />
           )
         })}
         <div className={styles.timeAxis} aria-hidden="true">
