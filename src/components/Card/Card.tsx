@@ -4,11 +4,15 @@ interface CardProps {
   title?: React.ReactNode
   action?: React.ReactNode
   children: React.ReactNode
+  className?: string
 }
 
-export default function Card({ title, action, children }: CardProps) {
+export default function Card({ title, action, children, className }: CardProps) {
   return (
-    <section className={styles.card} aria-label={title ? String(title) : undefined}>
+    <section
+      className={`${styles.card}${className ? ` ${className}` : ''}`}
+      aria-label={title ? String(title) : undefined}
+    >
       {title && (
         <div className={styles.headerRow}>
           <h2 className={styles.title}>{title}</h2>

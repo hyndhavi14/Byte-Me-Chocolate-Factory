@@ -6,6 +6,7 @@ export interface FactoryContextValue {
   factory: Factory
   factories: Factory[]
   setFactoryId: Dispatch<SetStateAction<string>>
+  addFactory: (factory: Factory) => void
 }
 
 export const FactoryContext = createContext<FactoryContextValue | null>(null)
