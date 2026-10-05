@@ -1,9 +1,5 @@
-import { Outlet } from 'react-router-dom'
+import AppShell from './layout/AppShell'
 
 export default function App() {
-  return (
-    <main style={{ minHeight: '100vh' }}>
-      <Outlet />
-    </main>
-  )
+  return <AppShell />
 }
