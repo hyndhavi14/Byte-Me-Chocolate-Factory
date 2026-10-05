@@ -27,7 +27,7 @@
 
 - `npm run lint` → 0/0; `npx tsc -b --force` → 0; `npm run build` → 0 (4.55 kB CSS / 237.6 kB JS)
 - Browser a11y tree: `navigation "Main"`, `image "ByteMe"`, combobox FACTORY (4 options), 7 links, optimizer card ✓
-- `aria-current="page"` follows the active route (verified on `/` → Dashboard, then `/schedule` → Production Schedule) ✓
+- `aria-current="page"` follows the active route — explicitly verified on **all 7 routes** (/, /processes, /schedule, /energy, /compare, /builder, /factory-view), each rendering its h1 inside main with the chocolate sidebar ✓
 - Responsive at 390×844: sidebar stacks above main (nav.bottom ≤ main.top), full-width, **no horizontal page overflow** (scrollWidth 373 ≤ 390) ✓; screenshot visually matches the chocolate sidebar spec
 - Console: clean (no errors/warnings) ✓
 
