@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import Button from '../../components/Button/Button'
 import Card from '../../components/Card/Card'
 import GanttRow from '../../components/GanttRow/GanttRow'
 import Legend from '../../components/Legend/Legend'
@@ -13,41 +14,6 @@ import styles from './SchedulePage.module.css'
 const VERSION_OPTIONS = [
   { value: 'baseline', label: 'Baseline' },
   { value: 'optimized', label: 'Optimized' },
-]
-
-const CHOCOLATE_SHIFTED_PROCESSES: ShiftedProcess[] = [
-  {
-    process: 'Conche batch',
-    machine: 'Conche C-1',
-    was: '12:00–19:00',
-    now: '10:00–17:00',
-    reason: 'Use solar',
-    saved: '₹ 6,900',
-  },
-  {
-    process: 'Roast B',
-    machine: 'Roaster R-1',
-    was: '18:00–20:30',
-    now: '13:00–15:30',
-    reason: 'Avoid peak',
-    saved: '₹ 4,100',
-  },
-  {
-    process: 'Temper 1',
-    machine: 'Tempering T-1',
-    was: '19:00–22:00',
-    now: '05:00–08:00',
-    reason: 'Avoid peak',
-    saved: '₹ 2,300',
-  },
-  {
-    process: 'Grind B',
-    machine: 'Grinder G-2',
-    was: '19:00–22:00',
-    now: '02:00–05:00',
-    reason: 'Off-peak rate',
-    saved: '₹ 1,800',
-  },
 ]
 
 function getMetric(factory: Factory, label: string, version: 'baseline' | 'optimized') {
@@ -67,7 +33,7 @@ function getSolarShare(factory: Factory, version: 'baseline' | 'optimized') {
 
 function getProcessCount(factory: Factory, version: 'baseline' | 'optimized') {
   if (version === 'baseline') return '0'
-  return factory.id === 'choc' ? '9' : String(factory.shifted.length)
+  return String(factory.shifted.length)
 }
 
 function getSummary(factory: Factory, version: 'baseline' | 'optimized') {
@@ -187,20 +153,23 @@ function Timeline({
 }
 
 export default function SchedulePage() {
-  const { factory } = useFactory()
+  const {
+    factory,
+    runOptimization,
+    optimizing,
+    optimizationError,
+  } = useFactory()
   const [version, setVersion] = useState('optimized')
   const isOptimized = version === 'optimized'
   const selectedBlocks = isOptimized ? factory.optimizedSchedule : factory.baselineSchedule
   const summary = getSummary(factory, isOptimized ? 'optimized' : 'baseline')
-  const shiftedProcesses =
-    factory.id === 'choc' ? CHOCOLATE_SHIFTED_PROCESSES : factory.shifted
   const machines = factory.stages.flatMap((stage) => stage.machines)
   const title = isOptimized ? 'Optimized timeline' : 'Baseline timeline'
 
   return (
     <>
       <PageHeader
-        eyebrow={`${factory.name} · Sample data`}
+        eyebrow={factory.name}
         title="Production schedule"
         actions={
           <SegmentedToggle
@@ -219,22 +188,50 @@ export default function SchedulePage() {
       </section>
 
       <Card title={title}>
-        <Legend
-          items={[
-            { label: 'Solar window', color: 'var(--sun-soft)', shape: 'square' },
-            { label: 'Peak price', color: 'var(--terracotta)', shape: 'square' },
-            { label: 'Shifted by optimizer', color: 'var(--espresso)', shape: 'dashed' },
-          ]}
-        />
-        <Timeline
-          machines={machines}
-          energyByHour={factory.energyByHour}
-          blocks={selectedBlocks}
-        />
+        {selectedBlocks.length === 0 ? (
+          <div className={styles.emptySchedule}>
+            <p>No schedule yet – run the optimizer.</p>
+            <Button
+              variant="primary"
+              isLoading={optimizing}
+              onClick={() => void runOptimization()}
+            >
+              Run optimization
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Legend
+              items={[
+                { label: 'Solar window', color: 'var(--sun-soft)', shape: 'square' },
+                { label: 'Peak price', color: 'var(--terracotta)', shape: 'square' },
+                { label: 'Shifted by optimizer', color: 'var(--espresso)', shape: 'dashed' },
+              ]}
+            />
+            <Timeline
+              machines={machines}
+              energyByHour={factory.energyByHour}
+              blocks={selectedBlocks}
+            />
+          </>
+        )}
       </Card>
 
+      {optimizationError && (
+        <Card title="Optimization failed">
+          <p className={styles.optimizationError}>{optimizationError}</p>
+          <Button
+            variant="primary"
+            isLoading={optimizing}
+            onClick={() => void runOptimization()}
+          >
+            Try again
+          </Button>
+        </Card>
+      )}
+
       <Card title="Shifted processes">
-        <ShiftedProcessesTable processes={shiftedProcesses} />
+        <ShiftedProcessesTable processes={factory.shifted} />
       </Card>
     </>
   )

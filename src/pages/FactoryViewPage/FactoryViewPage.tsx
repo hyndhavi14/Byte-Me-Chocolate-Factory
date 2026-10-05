@@ -168,16 +168,29 @@ function FactoryStats({ factory }: { factory: Factory }) {
   )
 }
 
-function FactoryFloor({
-  factory,
-  selectedMachineId,
-  onSelectMachine,
-}: {
+export interface FactoryFloorPlanProps {
   factory: Factory
-  selectedMachineId: string
-  onSelectMachine: (machineId: string) => void
-}) {
+  selectedMachineId?: string
+  onSelectMachine?: (machineId: string) => void
+}
+
+export function FactoryFloorPlan({
+  factory,
+  selectedMachineId: controlledMachineId,
+  onSelectMachine,
+}: FactoryFloorPlanProps) {
+  const [internalMachineId, setInternalMachineId] = useState(() =>
+    getInitialMachineId(factory),
+  )
   const machines = allMachines(factory)
+  const selectedMachineId =
+    (controlledMachineId &&
+    machines.some(({ machine }) => machine.id === controlledMachineId)
+      ? controlledMachineId
+      : machines.some(({ machine }) => machine.id === internalMachineId)
+        ? internalMachineId
+        : getInitialMachineId(factory))
+  const selectMachine = onSelectMachine ?? setInternalMachineId
   const selected = machines.find(
     ({ machine }) => machine.id === selectedMachineId,
   )
@@ -235,7 +248,7 @@ function FactoryFloor({
                     stage={stage}
                     number={index + 1}
                     selectedMachineId={selectedMachineId}
-                    onSelect={onSelectMachine}
+                    onSelect={selectMachine}
                   />
                   {index < factory.stages.length - 1 && (
                     <span className={styles.stageArrow} aria-hidden="true">
@@ -419,7 +432,7 @@ function FactoryViewForSelection({ factory }: { factory: Factory }) {
             </div>
           )}
           <FactoryStats factory={factory} />
-          <FactoryFloor
+          <FactoryFloorPlan
             factory={factory}
             selectedMachineId={selectedMachineId}
             onSelectMachine={setSelectedMachineId}

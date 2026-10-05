@@ -11,7 +11,7 @@ import EnergyPage from './pages/EnergyPage/EnergyPage.tsx'
 import ComparePage from './pages/ComparePage/ComparePage.tsx'
 import BuilderPage from './pages/BuilderPage/BuilderPage.tsx'
 import FactoryViewPage from './pages/FactoryViewPage/FactoryViewPage.tsx'
-import KitDemo from './components/KitDemo/KitDemo.tsx'
+import NotFoundPage from './pages/NotFoundPage/NotFoundPage.tsx'
 import { FactoryProvider } from './context/FactoryContext.tsx'
 
 const router = createBrowserRouter([
@@ -26,7 +26,7 @@ const router = createBrowserRouter([
       { path: 'compare', element: <ComparePage /> },
       { path: 'builder', element: <BuilderPage /> },
       { path: 'factory-view', element: <FactoryViewPage /> },
-      { path: 'kit', element: <KitDemo /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
 ])

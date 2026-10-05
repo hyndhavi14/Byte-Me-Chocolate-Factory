@@ -64,6 +64,10 @@
   line-height: 24px;
 }
 
+.lanedBlock {
+  line-height: 28px;
+}
+
 .roast {
   background: var(--caramel);
 }

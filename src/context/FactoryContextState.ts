@@ -7,6 +7,12 @@ export interface FactoryContextValue {
   factories: Factory[]
   setFactoryId: Dispatch<SetStateAction<string>>
   addFactory: (factory: Factory) => void
+  loading: boolean
+  error: string | null
+  reloadFactories: () => Promise<void>
+  runOptimization: () => Promise<void>
+  optimizing: boolean
+  optimizationError: string | null
 }
 
 export const FactoryContext = createContext<FactoryContextValue | null>(null)

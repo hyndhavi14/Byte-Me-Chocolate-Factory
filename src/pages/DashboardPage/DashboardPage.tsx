@@ -1,5 +1,7 @@
 import Button from '../../components/Button/Button'
 import Card from '../../components/Card/Card'
+import CompareCard from '../../components/CompareCard/CompareCard'
+import EnergyChart from '../../components/EnergyChart/EnergyChart'
 import GanttRow from '../../components/GanttRow/GanttRow'
 import KpiCard from '../../components/KpiCard/KpiCard'
 import Legend from '../../components/Legend/Legend'
@@ -7,12 +9,7 @@ import PageHeader from '../../components/PageHeader/PageHeader'
 import ProgressBar from '../../components/ProgressBar/ProgressBar'
 import StatusChip from '../../components/StatusChip/StatusChip'
 import { useFactory } from '../../context/useFactory'
-import type {
-  CompareMetric,
-  HourEnergy,
-  Machine,
-  ScheduleBlock,
-} from '../../data/types'
+import type { Machine, ScheduleBlock } from '../../data/types'
 import { Link } from 'react-router-dom'
 import styles from './DashboardPage.module.css'
 
@@ -39,101 +36,6 @@ const CUBE_ICON = (
     <path d="m6 12 14 8 14-8M20 20v16M13 8l14 8" stroke="currentColor" strokeWidth="2" />
   </svg>
 )
-
-function EnergyChart({
-  energyByHour,
-}: { energyByHour: HourEnergy[] }) {
-  return (
-    <div className={styles.energyChart}>
-      <div className={styles.chartScroller} role="img" aria-label="Hourly solar and grid energy use">
-        <div className={styles.chartInner}>
-          <div className={styles.chartBars}>
-            {energyByHour.map((hour) => (
-              <div
-                className={styles.chartColumn}
-                key={hour.hour}
-                title={`${String(hour.hour).padStart(2, '0')}:00 — solar ${hour.solarKwh} kWh, grid ${hour.gridKwh} kWh`}
-                aria-hidden="true"
-              >
-                <div
-                  className={styles.solarBar}
-                  style={{ height: `${hour.solarKwh * 3}px` }}
-                />
-                <div
-                  className={`${styles.gridBar}${hour.solarKwh === 0 ? ` ${styles.gridBarTop}` : ''}`}
-                  style={{ height: `${hour.gridKwh * 3}px` }}
-                />
-              </div>
-            ))}
-          </div>
-          <div className={styles.tariffStrip} aria-hidden="true">
-            {energyByHour.map((hour) => (
-              <div
-                className={`${styles.tariffBar} ${styles[`tariff-${hour.tariff}`]}`}
-                key={hour.hour}
-                title={`${String(hour.hour).padStart(2, '0')}:00 · ${hour.tariff} tariff`}
-              />
-            ))}
-          </div>
-          <div className={styles.hourLabels} aria-hidden="true">
-            {energyByHour.map((hour) => (
-              <span key={hour.hour}>
-                {hour.hour % 3 === 0 ? String(hour.hour).padStart(2, '0') : ''}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-      <p className={styles.chartNote}>
-        Heavy processes were moved into the 10:00–15:00 solar window and out of the
-        18:00–22:00 peak price band.
-      </p>
-    </div>
-  )
-}
-
-function CompareCard({
-  compare,
-}: { compare: CompareMetric[] }) {
-  return (
-    <Card title="Baseline vs optimized">
-      <Legend
-        items={[
-          { label: 'Baseline', color: 'var(--tan)', shape: 'square' },
-          { label: 'Optimized', color: 'var(--teal)', shape: 'square' },
-        ]}
-      />
-      <div className={styles.compareList}>
-        {compare.map((metric) => (
-          <div className={styles.compareMetric} key={metric.label}>
-            <div className={styles.compareHeading}>
-              <strong>{metric.label}</strong>
-              <span>{metric.change}</span>
-            </div>
-            <div className={styles.compareBarRow}>
-              <ProgressBar
-                value={metric.baselinePct}
-                color="var(--tan)"
-                height={12}
-                ariaLabel={`${metric.label} baseline`}
-              />
-              <span className={styles.compareValue}>{metric.baseline}</span>
-            </div>
-            <div className={styles.compareBarRow}>
-              <ProgressBar
-                value={metric.optimizedPct}
-                color="var(--teal)"
-                height={12}
-                ariaLabel={`${metric.label} optimized`}
-              />
-              <strong className={styles.compareValue}>{metric.optimized}</strong>
-            </div>
-          </div>
-        ))}
-      </div>
-    </Card>
-  )
-}
 
 function SchedulePreview({
   schedule,
@@ -196,21 +98,45 @@ function MachineList({ machines }: { machines: Machine[] }) {
 }
 
 export default function DashboardPage() {
-  const { factory } = useFactory()
+  const {
+    factory,
+    runOptimization,
+    optimizing,
+    optimizationError,
+  } = useFactory()
   const machines = factory.stages.flatMap((stage) => stage.machines)
 
   return (
     <>
       <PageHeader
-        eyebrow={`${factory.name} · Sample data`}
+        eyebrow={factory.name}
         title="Factory dashboard"
         actions={[
           <Button key="export" variant="secondary">Export report</Button>,
-          <Button key="optimize" variant="primary" icon={PLAY_ICON}>
+          <Button
+            key="optimize"
+            variant="primary"
+            icon={optimizing ? undefined : PLAY_ICON}
+            isLoading={optimizing}
+            onClick={() => void runOptimization()}
+          >
             Run optimization
           </Button>,
         ]}
       />
+
+      {optimizationError && (
+        <Card title="Optimization failed">
+          <p className={styles.optimizationError}>{optimizationError}</p>
+          <Button
+            variant="primary"
+            isLoading={optimizing}
+            onClick={() => void runOptimization()}
+          >
+            Try again
+          </Button>
+        </Card>
+      )}
 
       <section className={styles.kpiGrid} aria-label="Factory key performance indicators">
         {factory.kpis.map((kpi) => (
@@ -234,7 +160,7 @@ export default function DashboardPage() {
               { label: 'Peak price', color: 'var(--terracotta)', shape: 'dashed' },
             ]}
           />
-          <EnergyChart energyByHour={factory.energyByHour} />
+          <EnergyChart energyByHour={factory.energyByHour} showNote />
         </Card>
         <CompareCard compare={factory.compare} />
       </section>
